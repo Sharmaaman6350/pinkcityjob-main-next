@@ -132,7 +132,7 @@ export default function Jobs() {
                         </Dropdown.Toggle>
 
                         <Dropdown.Menu>
-                            <Dropdown.Item className="fw-bold"><FontAwesomeIcon icon={faCircleUser} width={16} className="mb-1 me-2 text-primary" />Update Profile</Dropdown.Item>
+                            <Dropdown.Item  className="fw-bold"><Link href="/update-profile"><FontAwesomeIcon icon={faCircleUser} width={16} className="mb-1 me-2 text-primary" />Update Profile</Link></Dropdown.Item>
                             <Dropdown.Item onClick={() => setShowLoginModal(true)} className="fw-bold"><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-primary" />Log In</Dropdown.Item>
                             <Dropdown.Item  onClick={() => setShowSignupModal(true)} className="fw-bold"><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-primary" />Sign Up</Dropdown.Item>
                             <Dropdown.Item onClick={handleLogout} className="fw-bold"><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-danger" />Log Out</Dropdown.Item>

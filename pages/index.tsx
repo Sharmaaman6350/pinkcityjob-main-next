@@ -31,7 +31,7 @@ export default function Home() {
                                         <div className="col-md-6">
                                             <div className="feature align-items-center">
                                                 <FontAwesomeIcon icon={faSmile} width={44} height={44} />
-                                                <i className="far fa-smile"></i>
+                                                
 
                                                 <div className="feature-text">
                                                     <h5 className="f-title"> HR Consultancy</h5>

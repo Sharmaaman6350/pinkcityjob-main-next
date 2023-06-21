@@ -25,24 +25,24 @@ type DataType = {
 
 
 type jobDataType = {
-    title : string,
-    company:{
-        name:string,
-        about:string,
+    title: string,
+    company: {
+        name: string,
+        about: string,
     },
-    salary:{
-        salary:string
+    salary: {
+        salary: string
     },
-    jobtype:{
-        title:string
+    jobtype: {
+        title: string
     },
-    description:string,
-    address:string,
-    responsibility:string,
-    position:{
-        skill:Array<{
-            value:string,
-            label:string
+    description: string,
+    address: string,
+    responsibility: string,
+    position: {
+        skill: Array<{
+            value: string,
+            label: string
         }>
     }
 
@@ -107,7 +107,7 @@ export default function JobPage(props: { data: jobDataType, hasError: Boolean })
     useEffect(() => {
         if (localStorage.getItem("role") !== "user") {
             setShowLoginModal(true)
-        } else{
+        } else {
             setUserName(localStorage?.getItem("name"))
         }
     }, [])
@@ -131,7 +131,7 @@ export default function JobPage(props: { data: jobDataType, hasError: Boolean })
     if (router.isFallback) {
         return <h1>Loading...</h1>
     }
-  
+
     return (
         <>
             <PageHead title={`${props?.data?.title} - Pink City Jobs`} description="Job Page - Pink City Jobs" />
@@ -142,13 +142,13 @@ export default function JobPage(props: { data: jobDataType, hasError: Boolean })
                     <Dropdown className="float-right text-white">
                         Welcome , {userName}
                         <Dropdown.Toggle variant="dark" id="dropdown-basic" className="rounded px-4 ms-2">
-                            <FontAwesomeIcon icon={faUserTie} width={20}/>
+                            <FontAwesomeIcon icon={faUserTie} width={20} />
                         </Dropdown.Toggle>
 
                         <Dropdown.Menu>
-                        <Dropdown.Item className="fw-bold"><FontAwesomeIcon icon={faCircleUser} width={16} className="mb-1 me-2 text-primary" />Update Profile</Dropdown.Item>
+                            <Dropdown.Item className="fw-bold"><Link href="/update-profile"><FontAwesomeIcon icon={faCircleUser} width={16} className="mb-1 me-2 text-primary" />Update Profile</Link></Dropdown.Item>
                             <Dropdown.Item onClick={() => setShowLoginModal(true)} className="fw-bold"><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-primary" />Log In</Dropdown.Item>
-                            <Dropdown.Item  onClick={() => setShowSignupModal(true)} className="fw-bold"><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-primary" />Sign Up</Dropdown.Item>
+                            <Dropdown.Item onClick={() => setShowSignupModal(true)} className="fw-bold"><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-primary" />Sign Up</Dropdown.Item>
                             <Dropdown.Item onClick={handleLogout} className="fw-bold"><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-danger" />Log Out</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
@@ -182,7 +182,7 @@ export default function JobPage(props: { data: jobDataType, hasError: Boolean })
                                     <p className="fw-bold text-muted"><strong className="text-red me-2"><u>Job Location:-</u></strong> {props?.data?.address}</p>
                                     <p ><strong className="text-red me-2 "><u>Full Job Description:-</u></strong> {props?.data?.description}</p>
                                     <p ><strong className="text-red me-2 "><u>About Company:-</u></strong>  {props?.data?.company?.about}</p>
-                                    <p ><strong className="text-red me-2 "><u>Skills Required:-</u></strong> {props?.data?.position?.skill?.map((item: any,i) => (<ul key={i}><li>{item?.value}</li></ul>))}</p>
+                                    <p ><strong className="text-red me-2 "><u>Skills Required:-</u></strong> {props?.data?.position?.skill?.map((item: any, i) => (<ul key={i}><li>{item?.value}</li></ul>))}</p>
                                     <p ><strong className="text-red me-2 "><u>Roles And Responsibilities:-</u></strong> {props?.data?.responsibility}</p>
 
                                     <center><Link className="button hover-white mt-md-3 mt-2" href="#"><span>Apply Now </span>
@@ -244,10 +244,10 @@ export default function JobPage(props: { data: jobDataType, hasError: Boolean })
                                                                     <div className="displayFlowRoot">
                                                                         <h4 className="tes-title text-green float-left">{item?.title}</h4>
                                                                         <span className="rating d-block float-right">
-                                                                          {stars}
+                                                                            {stars}
                                                                         </span>
                                                                     </div>
-                                                                    <div dangerouslySetInnerHTML={{__html:item?.description?.substring(0,360)+"....."}}/>
+                                                                    <div dangerouslySetInnerHTML={{ __html: item?.description?.substring(0, 360) + "....." }} />
                                                                     <div>
                                                                         <span className="float-md-left">{item?.name}</span>
                                                                         , <span>{item?.location}</span>
@@ -260,7 +260,7 @@ export default function JobPage(props: { data: jobDataType, hasError: Boolean })
                                                 </div>
                                             )
                                         })
-                                    }    
+                                    }
                                 </Slider>
 
 
