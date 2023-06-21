@@ -2178,7 +2178,7 @@ a:hover {
 
 
 .main-banner {
-  background: url(../public/images/banner-2.jpg);
+  background: url(/images/banner-2.jpg);
   color: white;
   padding: 50px 0px;
   background-repeat: no-repeat;
