@@ -57,12 +57,12 @@ const Header = () => {
                                             <div className="row">
                                                 <div className="col-md-4 col-lg-3">
                                                     <p className="title h3">Services</p>
-                                                    <ul className="link-list list-unstyled">
+                                                    <ul className="link-list list-unstyled text-capitalize">
                                                         {
                                                             allpage?.map((item) => (
                                                                 <>
                                                                     {
-                                                                        item?.pagetype === "services" ? <li><Link href={`/${item.slug}`}>{item?.title}</Link></li> : ""
+                                                                        item?.pagetype === "services" ? <li><Link href={`/${item.slug}`}>{item?.headertitle}</Link></li> : ""
                                                                     }
                                                                 </>
                                                             ))
@@ -77,8 +77,8 @@ const Header = () => {
                                                                 <>
                                                                     {
                                                                         item?.pagetype === "industry" ? <div className="col-md-12 col-lg-6">
-                                                                            <ul className="link-list list-unstyled">
-                                                                                <li><Link href={`/${item.slug}`}>{item?.title}</Link></li>
+                                                                            <ul className="link-list list-unstyled text-capitalize">
+                                                                                <li><Link href={`/${item.slug}`}>{item?.headertitle}</Link></li>
                                                                             </ul>
                                                                         </div> : ""
                                                                     }
@@ -93,12 +93,12 @@ const Header = () => {
 
                                                 <div className="col-md-4 col-lg-3">
                                                     <p className="title h3">HR Internship & Training</p>
-                                                    <ul className="link-list list-unstyled">
+                                                    <ul className="link-list list-unstyled text-capitalize">
                                                     {
                                                             allpage?.map((item) => (
                                                                 <>
                                                                     {
-                                                                        item?.pagetype === "internship" ? <li><Link href={`/${item.slug}`}>{item?.title}</Link></li> : ""
+                                                                        item?.pagetype === "internship" ? <li><Link href={`/${item.slug}`}>{item?.headertitle}</Link></li> : ""
                                                                     }
                                                                 </>
                                                             ))
@@ -122,7 +122,7 @@ const Header = () => {
                                 <li className="nl-simple" ><Link href="/jobs/">Jobs</Link></li>
                                 <li className="nl-simple" ><Link href="/submit-resume">Submit
                                     Resume</Link></li>
-                                <li className="nl-simple" ><Link href="/blog">Blog</Link></li>
+                                <li className="nl-simple" ><Link href="/blog/">Blog</Link></li>
 
                                 {/* ----- HEADER BUTTON ---- */}
                                 <li className="nl-simple" >

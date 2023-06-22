@@ -1,4 +1,5 @@
 import PageHead from "@/PageHead";
+import Content from "@/components/ContentCollapse";
 import ReviewSlider from "@/components/Review/ReviewSlider";
 import { faSmile } from "@fortawesome/free-regular-svg-icons";
 import { faGraduationCap, faBook, faUser, faFileAlt, faStar } from "@fortawesome/free-solid-svg-icons";
@@ -9,6 +10,7 @@ import Link from "next/link";
 
 
 export default function Home() {
+    
     return (
         <>
             <PageHead title="Placement Consultancy Services Jaipur, Vaishali Nagar - Pinkcity Jobs" description="Placement Consultancy Services Jaipur - Pinkcity Jobs is one of the trusted job placement consultant in Vaishali Nagar, You can approch our HR Recruitment agency" />
@@ -64,7 +66,6 @@ export default function Home() {
                                         <div className="col-md-6">
                                             <div className="feature align-items-center">
                                                 <FontAwesomeIcon icon={faGraduationCap} width={44} height={44} />
-
                                                 <div className="feature-text">
                                                     <h5 className="f-title">Fresher&apos;s Job</h5>
 
@@ -142,23 +143,21 @@ export default function Home() {
                                     </div>
                                     <div className="clearfix"></div>
                                     <div className="box-content"></div>
-                                    <p>Permanent staff and contract employees need a reliable partner to help them find quality
-                                        work.Recruiters at Permanent & Contract staffing services are committed to finding the best opportunity
-                                        <span id="dots">...</span><span id="more">for you with their unmatched expertise, industry knowledge,
-                                            connections and focus on client service. For over 30 years we&apos;ve had success matching talented
-                                            candidates like yourself with employers who have an immediate opening or one in development from our
-                                            database of more than 1 million open positions nationwide! We&apos;re ready when you are so contact us
-                                            today!</span><button id="myBtn">Read more</button></p>
+                                    <Content initialContent="Permanent staff and contract employees need a reliable partner to help them find quality
+                                        work.Recruiters at Permanent & Contract staffing services are committed to finding the best opportunity" expandedContent="for you with their unmatched expertise, industry knowledge,
+                                        connections and focus on client service. For over 30 years we&apos;ve had success matching talented
+                                        candidates like yourself with employers who have an immediate opening or one in development from our
+                                        database of more than 1 million open positions nationwide! We&apos;re ready when you are so contact us
+                                        today!"/>
+                                    
+                                    
                                 </div>
                             </div>
                         </div>
                         <div className="col-md-6 left-box">
-
                             <div className="box position-relative">
-
                                 <div className="box-content-box">
                                     <div className="box-heading">
-
                                         <FontAwesomeIcon icon={faFileAlt} width={66} height={70} />
                                         <Link href="#">
                                             <h4 className="box-title">Payroll
@@ -168,9 +167,10 @@ export default function Home() {
                                     </div>
                                     <div className="clearfix"></div>
                                     <div className="box-content"></div>
-                                    <p>It&apos;s not easy working with the human body all day, so many people need a break from their jobs.
+                                    <Content initialContent="It&apos;s not easy working with the human body all day, so many people need a break from their jobs.
                                         Outsourcing services can relieve some of that burden by taking care of tedious administrative tasks and
-                                        paperwork like payroll for you!</p>
+                                        paperwork like payroll for you!" expandedContent="" />
+                                    <p></p>
                                 </div>
                             </div>
                         </div>
@@ -187,11 +187,12 @@ export default function Home() {
                                     </div>
                                     <div className="clearfix"></div>
                                     <div className="box-content"></div>
-                                    <p>Executive search services are a great way to find the best candidates for your company. These companies
+                                    <Content initialContent="Executive search services are a great way to find the best candidates for your company. These companies
                                         have extensive databases and connections, which will allow them to help you hire top talent in any
-                                        industry <span id="dots1">...</span><span id="more1">or position that is available. They work with both
-                                            employers and job seekers so they can handle every aspect of this process from start-to-finish on
-                                            behalf of their clients</span><button id="myBtn1">Read more</button></p>
+                                        industry " expandedContent="or position that is available. They work with both
+                                        employers and job seekers so they can handle every aspect of this process from start-to-finish on
+                                        behalf of their clients" />
+                                   
                                 </div>
                             </div>
                         </div>
@@ -208,11 +209,11 @@ export default function Home() {
                                     </div>
                                     <div className="clearfix"></div>
                                     <div className="box-content">
-                                        <p>Our company helps newcomers in getting jobs! We have a team of experienced recruiters who know the
+                                    <Content initialContent="Our company helps newcomers in getting jobs! We have a team of experienced recruiters who know the
                                             ins and outs of hiring. You can also find many opportunities, as well as what it takes to land them on
-                                            our site.<span id="dots2">...</span><span id="more2">The company&apos;s recruitment process is designed to
-                                                help recent graduates find jobs that fit their skills and educational background.</span><button
-                                                    id="myBtn2">Read more</button></p>
+                                            our site. " expandedContent="The company&apos;s recruitment process is designed to
+                                            help recent graduates find jobs that fit their skills and educational background." />
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -302,11 +303,7 @@ export default function Home() {
                                 <h4>Pinkcity Jobs<span className="text-green"> Reviews</span></h4>
                                 <p>Check recent reviews about Pinkcity Jobs - Trusted Job Placement Consultant in Jaipur</p>
 
-
-
                                 <ReviewSlider/>
-
-                                
 
                                 <center><Link className="button hover-white mt-4 mt-md-5" href="/reviews/"><span>View All
                         Reviews </span></Link></center>

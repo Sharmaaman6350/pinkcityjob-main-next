@@ -2,6 +2,7 @@ import PageHead from "@/PageHead";
 import axios from "@/api/axios";
 import LoginModal from "@/components/Login/LoginModal";
 import SignUpModal from "@/components/SignUp/SignUpModal";
+import UserApplyModal from "@/components/UserApplyModal";
 import { faCircleUser, faRightToBracket, faStar, faUserTie } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import moment from "moment";
@@ -10,8 +11,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { Dropdown } from "react-bootstrap";
+import { Button, Dropdown } from "react-bootstrap";
 import Slider from "react-slick";
+import { toast } from "react-toastify";
 
 type DataType = {
     _id: number,
@@ -25,6 +27,7 @@ type DataType = {
 
 
 type jobDataType = {
+    _id: string,
     title: string,
     company: {
         name: string,
@@ -86,6 +89,9 @@ export default function JobPage(props: { data: jobDataType, hasError: Boolean })
     const [allreview, setAllreviews] = useState<DataType[]>([])
     const [showLoginModal, setShowLoginModal] = useState(false)
     const [showSignupModal, setShowSignupModal] = useState(false)
+    const [showUserApplyModal, setShowUserApplyModal] = useState(false)
+    const [jobId, setJobId] = useState("")
+    const [userId, setUserId] = useState("")
     const [userName, setUserName] = useState<string | null>("")
 
 
@@ -115,8 +121,16 @@ export default function JobPage(props: { data: jobDataType, hasError: Boolean })
     const handleLogout = () => {
         localStorage.clear()
         setUserName("")
-        alert("Account has been Logged Out")
-        window.location.reload()
+        toast.success('Account has been Logged Out', {
+            position: toast.POSITION.TOP_CENTER,
+            autoClose: 3000, // Duration in milliseconds
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+        });
+        router.push("/jobs")
     }
 
     if (props.hasError) {
@@ -146,10 +160,10 @@ export default function JobPage(props: { data: jobDataType, hasError: Boolean })
                         </Dropdown.Toggle>
 
                         <Dropdown.Menu>
-                            <Dropdown.Item className="fw-bold"><Link href="/update-profile"><FontAwesomeIcon icon={faCircleUser} width={16} className="mb-1 me-2 text-primary" />Update Profile</Link></Dropdown.Item>
-                            <Dropdown.Item onClick={() => setShowLoginModal(true)} className="fw-bold"><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-primary" />Log In</Dropdown.Item>
-                            <Dropdown.Item onClick={() => setShowSignupModal(true)} className="fw-bold"><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-primary" />Sign Up</Dropdown.Item>
-                            <Dropdown.Item onClick={handleLogout} className="fw-bold"><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-danger" />Log Out</Dropdown.Item>
+                            <Dropdown.Item className="fw-bold"><Link href="/update-profile" className="text-black bg-none"><FontAwesomeIcon icon={faCircleUser} width={16} className="mb-1 me-2 text-primary" />Update Profile</Link></Dropdown.Item>
+                            <Dropdown.Item onClick={() => setShowLoginModal(true)} className="fw-bold" hidden={userName !== "" ? true : false}><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-primary" />Log In</Dropdown.Item>
+                            <Dropdown.Item onClick={() => setShowSignupModal(true)} className="fw-bold" hidden={userName !== "" ? true : false}><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-primary" />Sign Up</Dropdown.Item>
+                            <Dropdown.Item onClick={handleLogout} className="fw-bold" hidden={userName !== "" ? false : true}><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-danger" />Log Out</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
                 </div>
@@ -182,11 +196,11 @@ export default function JobPage(props: { data: jobDataType, hasError: Boolean })
                                     <p className="fw-bold text-muted"><strong className="text-red me-2"><u>Job Location:-</u></strong> {props?.data?.address}</p>
                                     <p ><strong className="text-red me-2 "><u>Full Job Description:-</u></strong> {props?.data?.description}</p>
                                     <p ><strong className="text-red me-2 "><u>About Company:-</u></strong>  {props?.data?.company?.about}</p>
-                                    <p ><strong className="text-red me-2 "><u>Skills Required:-</u></strong> {props?.data?.position?.skill?.map((item: any, i) => (<ul key={i}><li>{item?.value}</li></ul>))}</p>
+                                    <strong className="text-red me-2 "><u>Skills Required:-</u></strong> {props?.data?.position?.skill?.map((item: any, i) => (<ul key={i}><li>{item?.value}</li></ul>))}
                                     <p ><strong className="text-red me-2 "><u>Roles And Responsibilities:-</u></strong> {props?.data?.responsibility}</p>
 
-                                    <center><Link className="button hover-white mt-md-3 mt-2" href="#"><span>Apply Now </span>
-                                    </Link></center>
+                                    <center><Button className="button bg-black hover-white mt-md-3 mt-2" onClick={() => { setShowUserApplyModal(true), setJobId(props?.data?._id) }}><span>Apply Now </span>
+                                    </Button></center>
                                 </div>
                             </div>
                         </div>
@@ -274,6 +288,7 @@ export default function JobPage(props: { data: jobDataType, hasError: Boolean })
             </section>
             <LoginModal show={showLoginModal} setShow={setShowLoginModal} />
             <SignUpModal show={showSignupModal} setShow={setShowSignupModal} />
+            <UserApplyModal show={showUserApplyModal} setShow={setShowUserApplyModal} id={jobId} setId={setJobId} />
         </>
     )
 }

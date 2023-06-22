@@ -1687,7 +1687,9 @@ a:hover {
   opacity: 1;
   right: 0;
 }
-
+.cursor-pointer{
+  cursor: pointer!important;
+}
 .btn span {
   cursor: pointer;
   display: inline-block;
@@ -2685,7 +2687,7 @@ aside .other-services li .faHandPoint {
 
 /* review page */
 #reviews-page .review-box {
-  height: 350px;
+  min-height: 200px;
   overflow-y: auto;
 }
 
@@ -2734,6 +2736,13 @@ aside .other-services li .faHandPoint {
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0px;
+}
+
+
+.content-area .badge{
+  padding: 6px 12px;
+  margin-bottom: 2px;
+  font-size: 12px;
 }
 
 /* Accordion*/

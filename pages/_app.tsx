@@ -9,6 +9,8 @@ import Script from "next/script";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
 
+import ToastContainerWrapper from "@/components/ToastContainer";
+
 
 export default function App({ Component, pageProps }: AppProps) {
 
@@ -22,6 +24,7 @@ export default function App({ Component, pageProps }: AppProps) {
         </Head>
         <Header/>
         <Component {...pageProps}/>
+        <ToastContainerWrapper />
         <Footer/>
         <Script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.1/js/bootstrap.min.js" />
     </>

@@ -5,12 +5,22 @@ import { useState, useEffect } from "react"
 import axios from "@/api/axios";
 import JobBox from "@/components/JobBox/JobBox";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faArrowRight, faCircleUser, faRightToBracket,  faUserTie } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faArrowRight, faCircleUser, faRightToBracket, faUserTie } from "@fortawesome/free-solid-svg-icons";
 import ReactPaginate from "react-paginate";
 import LoginModal from "@/components/Login/LoginModal";
 import Dropdown from 'react-bootstrap/Dropdown';
 
 import SignUpModal from "@/components/SignUp/SignUpModal";
+import {toast} from "react-toastify"
+import { useRouter } from "next/router";
+
+type positionDataType = {
+    coords: {
+        latitude: number,
+        longitude: number,
+    }
+}
+
 export default function Jobs() {
     const settings = {
         autoplay: true,
@@ -69,18 +79,23 @@ export default function Jobs() {
                 }
             }
         ]
-    }
+    };
+
+    const router = useRouter()
 
     const [alldata, setAlldata] = useState<any[]>([])
-    const [totalpage, setTotalpage] = useState<number >(1)
+    const [totalpage, setTotalpage] = useState<number>(1)
     const [currentpage, setCurrentpage] = useState<number>(1)
     const [loading, setLoading] = useState(true)
     const [showLoginModal, setShowLoginModal] = useState(false)
     const [showSignupModal, setShowSignupModal] = useState(false)
     const [userName, setUserName] = useState<string | null>("")
+    const [latitude, setLatitude] = useState<number | null>()
+    const [longitude, setLongitude] = useState<number | null>()
+
     useEffect(() => {
         const getAllJob = async () => {
-            await axios.get(`/api/job/search/?page=${currentpage}&selectrow=15&status=approved`).then((response) => {
+            await axios.get(`/api/job/search/?page=${currentpage}&selectrow=15&status=approved&lat=${latitude}&lon=${longitude}`).then((response) => {
                 if (response) {
                     setAlldata(response?.data?.job)
                     setTotalpage(response?.data?.totalPages)
@@ -92,7 +107,7 @@ export default function Jobs() {
             })
         }
         getAllJob();
-    }, [currentpage])
+    }, [currentpage,latitude,longitude])
 
 
     const handleChange = ({ selected }: any) => {
@@ -105,16 +120,32 @@ export default function Jobs() {
     useEffect(() => {
         if (localStorage.getItem("role") !== "user") {
             setShowLoginModal(true)
-        } else{
+        } else {
             setUserName(localStorage?.getItem("name"))
         }
-    }, [showLoginModal])
+    }, [])
 
     const handleLogout = () => {
         localStorage.clear()
         setUserName("")
-        alert("Account has been Logged Out")
-        window.location.reload()
+        toast.success('Account has been Logged Out', {
+            position: toast.POSITION.TOP_CENTER,
+            autoClose: 3000, // Duration in milliseconds
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+          router.reload()
+        
+    }
+    useEffect(() => {
+        navigator.geolocation.getCurrentPosition(getPosition)
+    }, [])
+    const getPosition = (position: positionDataType) => {
+        setLatitude(position.coords.latitude)
+        setLongitude(position.coords.longitude)
     }
 
     return (
@@ -128,14 +159,14 @@ export default function Jobs() {
                     <Dropdown className="float-right text-white">
                         Welcome , {userName}
                         <Dropdown.Toggle variant="dark" id="dropdown-basic" className="rounded px-4 ms-2">
-                            <FontAwesomeIcon icon={faUserTie} width={20}/>
+                            <FontAwesomeIcon icon={faUserTie} width={20} />
                         </Dropdown.Toggle>
 
                         <Dropdown.Menu>
-                            <Dropdown.Item  className="fw-bold"><Link href="/update-profile"><FontAwesomeIcon icon={faCircleUser} width={16} className="mb-1 me-2 text-primary" />Update Profile</Link></Dropdown.Item>
-                            <Dropdown.Item onClick={() => setShowLoginModal(true)} className="fw-bold"><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-primary" />Log In</Dropdown.Item>
-                            <Dropdown.Item  onClick={() => setShowSignupModal(true)} className="fw-bold"><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-primary" />Sign Up</Dropdown.Item>
-                            <Dropdown.Item onClick={handleLogout} className="fw-bold"><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-danger" />Log Out</Dropdown.Item>
+                            <Dropdown.Item className="fw-bold"><Link href="/update-profile" className="bg-none text-black"><FontAwesomeIcon icon={faCircleUser} width={16} className="mb-1 me-2 text-primary" />Update Profile</Link></Dropdown.Item>
+                            <Dropdown.Item onClick={() => setShowLoginModal(true)} className="fw-bold" hidden={userName !== "" ? true : false}><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-primary" />Log In</Dropdown.Item>
+                            <Dropdown.Item onClick={() => setShowSignupModal(true)} className="fw-bold" hidden={userName !== "" ? true : false}><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-primary" />Sign Up</Dropdown.Item>
+                            <Dropdown.Item onClick={handleLogout} className="fw-bold" hidden={userName !== "" ? false : true}><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-danger" />Log Out</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
                 </div>

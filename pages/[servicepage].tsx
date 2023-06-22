@@ -57,9 +57,9 @@ export default function ServicePage(props: { data: servicePageDataType, hasError
     
     if (props.hasError) {
         return (
-            <div className="h-screen flex items-center justify-center flex-col gap-4">
-                <p className="text-2xl text-gray-500 font-medium">Invalid Request! The page you are looking, not found.</p>
-                <button className="px-5 py-2 bg-red-600 text-white rounded-md" onClick={() => router.back()}>Tap to go back</button>
+            <div className="text-center my-4">
+                <p className="text-secondary fw-bold text-center">Invalid Request! The page you are looking, not found.</p>
+                <button className="btn-dark btn text-white px-3 py-2" onClick={() => router.back()}>Tap to go back</button>
             </div>
         )
     }

@@ -47,7 +47,6 @@ const ReviewSlider = () => {
                         <div className="item" key={i}>
                             <div className="testi-box">
                                 <div className="testimonial border mb-3 ">
-
                                     <div className=" pl-md-0">
                                         <div className="test-text p-md-3 p-2">
                                             <div className="displayFlowRoot">
@@ -56,7 +55,7 @@ const ReviewSlider = () => {
                                                     {stars}
                                                 </span>
                                             </div>
-                                            <div dangerouslySetInnerHTML={{ __html: item?.description }} />
+                                            <div dangerouslySetInnerHTML={{ __html: item?.description.substring(0,250) + "....." }} />
                                             <div>
                                                 <span className="float-md-left text-capitalize">{item?.name}</span>
                                                 , <span>{item?.location}</span>

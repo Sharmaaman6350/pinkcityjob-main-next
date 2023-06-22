@@ -4,9 +4,11 @@ import { faEye } from "@fortawesome/free-solid-svg-icons";
 import {  Button, Form, Modal } from "react-bootstrap";
 import { useState } from "react";
 import axios from "@/api/axios";
-
+import { useRouter } from "next/router";
+import {toast} from "react-toastify"
 
 const SignUpModal = ({ show, setShow }: any) => {
+    const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
@@ -27,12 +29,19 @@ const SignUpModal = ({ show, setShow }: any) => {
                 setEmail("")
                 setPassword("")
                 setConfirmPassword("")
-                alert("Your Account Has been Created Successfully.Please Log In again.");
-                localStorage.clear()
-                window.location.reload()
+                toast.success('Your Account Has been Created Successfully.Please Log In again.', {
+                    position: toast.POSITION.TOP_CENTER,
+                    autoClose: 3000, // Duration in milliseconds
+                    hideProgressBar: true,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                  });
+                  router.reload()
             }
         }).catch((error) => {
-            alert(error?.response?.data?.message)
+            toast.error(error?.response?.data?.message)
             setPassword("")
             setConfirmPassword("")
             setTimeout(()=>setLoading(false),1400)

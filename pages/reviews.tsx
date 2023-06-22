@@ -25,7 +25,7 @@ export default function Reviews() {
 
     useEffect(() => {
         const getAllReviews = async () => {
-            await axios.get(`/api/review/search/?page=${page || "" }&selectrow=20&title=`)
+            await axios.get(`/api/review/search/?page=${page || "" }&selectrow=16&title=`)
                 .then((res) => {
                     if (res?.status === 200) {
                         setAlldata(res?.data?.review)
@@ -79,12 +79,12 @@ export default function Reviews() {
 
                                                         return (
 
-                                                            <div className="col-md-6" key={index}>
-                                                                <div className="bg-light border shadow p-md-3 mb-4 review-box">
+                                                            <div className="col-md-12" key={index}>
+                                                                <div className="bg-light border border-muted rounded border-3 shadow p-md-3 mb-4 review-box">
                                                                     <p className="reviews_heading text-green text-capitalize">{item?.title}</p>
-                                                                    <div dangerouslySetInnerHTML={{ __html: item?.description?.substring(0,360) + "....."}} />
+                                                                    <div dangerouslySetInnerHTML={{ __html: item?.description}} />
 
-                                                                    <p className="reviews_destination text-red font600 mb-0">
+                                                                    <p className="reviews_destination text-red font600 mb-0 text-capitalize" >
                                                                         <span>{item?.name}</span>
                                                                         , <span>{item?.location}</span>
                                                                     </p>

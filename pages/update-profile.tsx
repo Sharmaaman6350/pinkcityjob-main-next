@@ -4,38 +4,56 @@ import LoginModal from "@/components/Login/LoginModal";
 import SignUpModal from "@/components/SignUp/SignUpModal";
 import { faCircleUser, faRightToBracket, faUserTie } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { Button, Dropdown, Form } from "react-bootstrap";
+import { useRouter } from "next/router";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { Button, Dropdown, Form, FormControlProps } from "react-bootstrap";
 const worldMapData = require('city-state-country');
+import {toast} from "react-toastify"
 
 type userDataType = {
+    _id: number,
     name: string,
-    number: number,
+    number: number | string,
     city: string,
     email: string,
-    jobtype: {
+
+    jobtype: string | {
         _id: number
     },
-    position: {
+    position: string | {
         _id: number
     },
-    experience: {
+    experience: string | {
         _id: number
     },
-    qualification: {
+    qualification: string | {
         _id: number
     },
     about: string,
     address: string,
     state: string,
     country: string,
-    file: {
-        originalname: string,
-        location: string
-    }
+    file: File | null; // Update the file property type
 
 }
+
+// type formDataType = {
+//     id: number | undefined;
+//     name: string | undefined;
+//     email: string | undefined;
+//     number: string | number | undefined;
+//     address: string | undefined;
+//     country: string | undefined;
+//     state: string | undefined;
+//     city: string | undefined;
+//     qualification: string | undefined;
+//     experience: string | undefined;
+//     jobtype: string | undefined;
+//     position: string | undefined;
+//     file: File | undefined | null;
+//     about: string | undefined;
+
+// };
 type TypeData = {
     title: string,
     experience: string,
@@ -51,6 +69,7 @@ type locationDataType = {
 
 
 export default function UpdateProfile() {
+    const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [showLoginModal, setShowLoginModal] = useState(false)
     const [showSignupModal, setShowSignupModal] = useState(false)
@@ -63,7 +82,7 @@ export default function UpdateProfile() {
     const [countryData, setCountryData] = useState<locationDataType[]>(worldMapData.getAllCountries());
     const [stateData, setstateData] = useState<locationDataType[]>([]);
     const [cityData, setcityData] = useState<locationDataType[]>([]);
-
+    const [filename, setFilename] = useState("")
     //---------- useEffect for getting user details  -------////
     useEffect(() => {
         const id = localStorage?.getItem("user_id")
@@ -71,6 +90,9 @@ export default function UpdateProfile() {
             await axios.get(`/api/user/${id}`).then((response) => {
                 if (response) {
                     setEditabledata(response?.data?.user)
+                    if (response?.data?.user?.file.length === 1) {
+                        setFilename(response?.data?.user?.file[0].originalname || response?.data?.user?.file[0].key)
+                    }
                     setLoading(false)
                 } else {
                     alert("Something Went Wrong Please Try Again")
@@ -158,14 +180,70 @@ export default function UpdateProfile() {
         } else {
             setUserName(localStorage?.getItem("name"))
         }
-    }, [showLoginModal])
+    }, [])
 
+    console.log(editabledata)
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+        setLoading(true);
+        event.preventDefault();
+
+        const formData = new FormData();
+
+        formData.append('name', editabledata?.name || '');
+        formData.append('email', editabledata?.email || '');
+        formData.append('number', editabledata?.number?.toString() || '');
+        formData.append('address', editabledata?.address || '');
+        formData.append('country', editabledata?.country || '');
+        formData.append('state', editabledata?.state || '');
+        formData.append('city', editabledata?.city || '');
+        formData.append('qualification', typeof editabledata?.qualification === 'string' ? editabledata?.qualification : editabledata?.qualification?._id.toString() || '');
+        formData.append('experience', typeof editabledata?.experience === 'string' ? editabledata?.experience : editabledata?.experience?._id.toString() || '');
+        formData.append('jobtype', typeof editabledata?.jobtype === 'string' ? editabledata?.jobtype : editabledata?.jobtype?._id.toString() || '');
+        formData.append('position', typeof editabledata?.position === 'string' ? editabledata?.position : editabledata?.position?._id.toString() || '');
+
+        // Append the file if it exists
+        if (editabledata?.file instanceof File) {
+            formData.append('file', editabledata?.file as File);
+        }
+
+        formData.append('about', editabledata?.about || '');
+
+        await axios.patch(`/api/user/update/${editabledata?._id}`, formData)
+            .then((response) => {
+                if (response) {
+                    toast.success('Profile Successfully Updated', {
+                        position: toast.POSITION.TOP_CENTER,
+                        autoClose: 3000, // Duration in milliseconds
+                        hideProgressBar: true,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        
+                      });
+                      router.push("/user-profile")
+                }
+            })
+            .catch((error) => {
+                toast.error(error?.response?.data?.message);
+                setTimeout(() => setLoading(false), 1400)
+            });
+    };
 
     const handleLogout = () => {
         localStorage.clear()
         setUserName("")
-        alert("Account has been Logged Out")
-        window.location.reload()
+        toast.success('Account has been Logged Out', {
+            position: toast.POSITION.TOP_CENTER,
+            autoClose: 3000, // Duration in milliseconds
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            
+          });
+          router.push("/jobs")
     }
 
     return (
@@ -181,10 +259,10 @@ export default function UpdateProfile() {
                         </Dropdown.Toggle>
 
                         <Dropdown.Menu>
-                            <Dropdown.Item className="fw-bold"><Link href="/update-profile"><FontAwesomeIcon icon={faCircleUser} width={16} className="mb-1 me-2 text-primary" />Update Profile</Link></Dropdown.Item>
-                            <Dropdown.Item onClick={() => setShowLoginModal(true)} className="fw-bold"><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-primary" />Log In</Dropdown.Item>
-                            <Dropdown.Item onClick={() => setShowSignupModal(true)} className="fw-bold"><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-primary" />Sign Up</Dropdown.Item>
-                            <Dropdown.Item onClick={handleLogout} className="fw-bold"><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-danger" />Log Out</Dropdown.Item>
+                            <Dropdown.Item className="fw-bold"><FontAwesomeIcon icon={faCircleUser} width={16} className="mb-1 me-2 text-primary" />Update Profile</Dropdown.Item>
+                            <Dropdown.Item onClick={() => setShowLoginModal(true)} className="fw-bold" hidden={userName !== "" ? true : false}><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-primary" />Log In</Dropdown.Item>
+                            <Dropdown.Item onClick={() => setShowSignupModal(true)} className="fw-bold" hidden={userName !== "" ? true : false}><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-primary" />Sign Up</Dropdown.Item>
+                            <Dropdown.Item onClick={handleLogout} className="fw-bold" hidden={userName !== "" ? false : true}><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-danger" />Log Out</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
                 </div>
@@ -210,25 +288,52 @@ export default function UpdateProfile() {
                         <div className="col-md-12">
 
 
-                            <Form className="border-top px-5 py-3 mb-3 border-bottom border-secondary border-2">
+                            <Form className="border-top px-5 py-3 mb-3 border-bottom border-secondary border-2" onSubmit={handleSubmit}>
                                 <div className="row my-2">
                                     <div className="col-md-6 col-sm-12 my-1">
                                         <label htmlFor="name" className="labelStyling">Enter Name</label>
-                                        <Form.Control type="text" id="name" value={editabledata?.name} className=" bgWhite" placeholder="Enter User Name" required />
+                                        <Form.Control type="text" id="name" value={editabledata?.name} onChange={(e) => {
+                                            setEditabledata((prevData) => {
+                                                if (prevData) {
+                                                    return { ...prevData, name: e.target.value };
+                                                } return prevData
+                                            })
+                                        }} className=" bgWhite" placeholder="Enter User Name" required />
                                     </div>
                                     <div className="col-md-6 col-sm-12 my-1">
                                         <label htmlFor="email" className="labelStyling">Enter Email</label>
-                                        <Form.Control type="email" value={editabledata?.email} id="email" className=" bgWhite " placeholder="Enter  Email" required />
+                                        <Form.Control type="email" value={editabledata?.email} onChange={(e) => {
+                                            setEditabledata((prevData) => {
+                                                if (prevData) {
+                                                    return { ...prevData, email: e.target.value };
+                                                } return prevData
+                                            })
+                                        }} id="email" className=" bgWhite " placeholder="Enter  Email" required />
                                     </div>
                                 </div>
                                 <div className="row my-2">
                                     <div className="col-md-6 col-sm-12 my-1">
                                         <label htmlFor="number" className="labelStyling">Enter Number</label>
-                                        <Form.Control id="number" type="number" className=" bgWhite" value={editabledata?.number} placeholder="Enter User Contact Number" required />
+                                        <Form.Control id="number" type="number" className=" bgWhite" value={editabledata?.number} onChange={(e) => {
+                                            setEditabledata((prevData) => {
+                                                if (prevData) {
+                                                    return { ...prevData, number: e.target.value };
+                                                } return prevData
+                                            })
+                                        }} placeholder="Enter User Contact Number" required />
                                     </div>
                                     <div className="col-md-6 col-sm-12 my-1">
                                         <label htmlFor="jobtype" className="labelStyling">Preferred Job Type</label>
-                                        <Form.Select id="jobtype" value={editabledata?.jobtype?._id} required>
+                                        <Form.Select id="jobtype" value={typeof editabledata?.jobtype === 'string' ? editabledata.jobtype : editabledata?.jobtype?._id.toString()}
+                                            onChange={(e) => {
+                                                setEditabledata((prevData) => {
+                                                    if (prevData) {
+                                                        const newValue = typeof e.target.value === 'string' ? e.target.value : { _id: parseInt(e.target.value) };
+                                                        return { ...prevData, jobtype: newValue };
+                                                    }
+                                                    return prevData;
+                                                });
+                                            }} required>
                                             <option value="">Select Job Type</option>
                                             {
                                                 jobtype?.map((item, i) => {
@@ -244,7 +349,16 @@ export default function UpdateProfile() {
                                     <div className="col-md-6 col-sm-12 my-1">
                                         <label className="labelStyling">Preferred Position</label>
 
-                                        <Form.Select id="position" value={editabledata?.position?._id} required>
+                                        <Form.Select id="position" value={typeof editabledata?.position === "string" ? editabledata?.position : editabledata?.position?._id.toString()}
+                                            onChange={(e) => {
+                                                setEditabledata((prevData) => {
+                                                    if (prevData) {
+                                                        const newValue = typeof e.target.value === "string" ? e.target.value : { _id: parseInt(e.target.value) }
+                                                        return { ...prevData, position: newValue };
+                                                    } return prevData;
+                                                })
+                                            }}
+                                            required>
                                             <option value="">Select Position</option>
                                             {
                                                 position?.map((item, i) => {
@@ -257,7 +371,16 @@ export default function UpdateProfile() {
                                     </div>
                                     <div className="col-md-6 col-sm-12 my-1">
                                         <label htmlFor="experience" className="labelStyling">Select Experience</label>
-                                        <Form.Select id="experience" value={editabledata?.experience?._id} required>
+                                        <Form.Select id="experience" value={typeof editabledata?.experience === "string" ? editabledata?.experience : editabledata?.experience?._id}
+                                            onChange={(e) => {
+                                                setEditabledata((prevData) => {
+                                                    if (prevData) {
+                                                        const newValue = typeof e.target.value === "string" ? e.target.value : { _id: parseInt(e.target.value) }
+                                                        return { ...prevData, experience: newValue }
+                                                    } return prevData
+                                                })
+                                            }}
+                                            required>
                                             <option value="">Select Experience</option>
                                             {
                                                 experience?.map((item, i) => {
@@ -273,7 +396,16 @@ export default function UpdateProfile() {
                                 <div className="row my-2">
                                     <div className="col-md-6 col-sm-12 my-1">
                                         <label htmlFor="qualification" className="labelStyling">Enter Highest Qualification</label>
-                                        <Form.Select id="qualification" value={editabledata?.qualification?._id} required>
+                                        <Form.Select id="qualification" value={typeof editabledata?.qualification === "string" ? editabledata?.qualification : editabledata?.qualification?._id}
+                                            onChange={(e) => {
+                                                setEditabledata((prevData) => {
+                                                    if (prevData) {
+                                                        const newValue = typeof e.target.value === "string" ? e.target.value : { _id: parseInt(e.target.value) }
+                                                        return { ...prevData, qualification: newValue }
+                                                    } return prevData
+                                                })
+                                            }}
+                                            required>
                                             <option value="">Select Qualification</option>
                                             {
                                                 qualification?.map((item, i) => {
@@ -287,18 +419,25 @@ export default function UpdateProfile() {
 
                                     <div className="col-md-6 col-sm-12 my-1">
                                         <label className="labelStyling">Enter Your Local Address</label>
-                                        <Form.Control type="text" className=" bgWhite" value={editabledata?.address} placeholder="Enter Your Local Address" required />
+                                        <Form.Control type="text" className=" bgWhite" value={editabledata?.address} onChange={(e) => {
+                                            setEditabledata((prevData) => {
+                                                if (prevData) {
+                                                    return { ...prevData, address: e.target.value }
+                                                } return prevData
+                                            })
+                                        }} placeholder="Enter Your Local Address" required />
                                     </div>
                                 </div>
-
-
-
-
-
                                 <div className="d-flex align-items-center gap-3 mb-2">
                                     <div className="w-100">
                                         <label className="labelStyling">Select Country</label>
-                                        <Form.Select value={editabledata?.country || "India"} className="w-100" required>
+                                        <Form.Select value={editabledata?.country || "India"} onChange={(e) => {
+                                            setEditabledata((prevData) => {
+                                                if (prevData) {
+                                                    return { ...prevData, country: e.target.value }
+                                                } return prevData
+                                            })
+                                        }} className="w-100" required>
                                             <option value="">Select Country</option>
                                             {
                                                 countryData?.map((item, i) => {
@@ -312,7 +451,13 @@ export default function UpdateProfile() {
                                     </div>
                                     <div className="w-100">
                                         <label className="labelStyling">Select State</label>
-                                        <Form.Select value={editabledata?.state} className="w-100" required>
+                                        <Form.Select value={editabledata?.state} onChange={(e) => {
+                                            setEditabledata((prevData) => {
+                                                if (prevData) {
+                                                    return { ...prevData, state: e.target.value }
+                                                } return prevData
+                                            })
+                                        }} className="w-100" required>
                                             <option value="">Select State</option>
                                             {
                                                 stateData?.map((item, i) => {
@@ -326,7 +471,13 @@ export default function UpdateProfile() {
                                     </div>
                                     <div className="w-100">
                                         <label className="labelStyling">Select City</label>
-                                        <Form.Select value={editabledata?.city} className="w-100" required>
+                                        <Form.Select value={editabledata?.city} onChange={(e) => {
+                                            setEditabledata((prevData) => {
+                                                if (prevData) {
+                                                    return { ...prevData, city: e.target.value }
+                                                } return prevData
+                                            })
+                                        }} className="w-100" required>
                                             <option value="">Select City</option>
                                             {
                                                 cityData?.map((item, i) => {
@@ -336,34 +487,53 @@ export default function UpdateProfile() {
                                                 })
                                             }
                                         </Form.Select>
+
                                     </div>
+
+
                                 </div>
-
-
                                 <div className="row my-2">
                                     <div className="col-md-12">
                                         <label htmlFor="about" className="labelStyling"> Tell Us About You</label>
-                                        <Form.Control id="about" as="textarea" value={editabledata?.about} className="textarea" placeholder="Tell me something about you............." required />
+                                        <Form.Control id="about" as="textarea" value={editabledata?.about} onChange={(e) => {
+                                            setEditabledata((prevData) => {
+                                                if (prevData) {
+                                                    return { ...prevData, about: e.target.value }
+                                                } return prevData
+                                            })
+                                        }} className="textarea" placeholder="Tell me something about you............." required />
                                     </div>
                                 </div>
+
+
+
                                 <div className="row my-2">
                                     <div className="col-md-12">
                                         <label className="labelStyling ">Upload Resume File (.pdf format) <span className="text-danger">(Note:Ignore if Already uploaded)</span></label>
-                                        <Form.Control id="file" type="file" title="Upload Your Resume" />
-                                        <label className="labelStyling">Uploaded File : <span className="text-danger"></span></label>
+                                        <Form.Control id="file" type="file" title="Upload Your Resume" onChange={(e) => {
+                                            const target = e.target as HTMLInputElement;
+                                            const file = target.files?.[0] || null;
+                                            setEditabledata((prevData) => {
+                                                if (prevData) {
+                                                    return {
+                                                        ...prevData,
+                                                        file
+                                                    };
+                                                }
+                                                return prevData;
+                                            });
+                                        }} />
+                                        <label className="labelStyling text-red">Uploaded File : {filename}<span className="text-danger"></span></label>
                                     </div>
                                 </div>
 
-
-
-
                                 {
-                                    loading === true ? <Button type="submit" className="bg-pink btnSubmit " size="sm" disabled={loading}>
-                                        Loading... Please Wait!!
-                                    </Button> : <Button type="submit" className="bg-pink btnSubmit " size="sm" >
-                                        Submit
-                                    </Button>
+                                    loading === true ? <center><Button type="submit" className="button bg-black hover-white mt-md-3 mt-2" disabled={loading}>
+                                        <span>Loading... Please Wait!!</span>
+                                    </Button></center> : <center><Button type="submit" className="button bg-black hover-white mt-md-3 mt-2" ><span>Update Profile</span>
+                                    </Button></center>
                                 }
+
                             </Form>
                         </div>
 

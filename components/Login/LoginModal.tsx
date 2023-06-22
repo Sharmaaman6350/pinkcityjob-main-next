@@ -5,9 +5,12 @@ import { Button, Form, Modal, Table } from "react-bootstrap";
 import { useState } from "react";
 import axios from "@/api/axios";
 import SignUpModal from "../SignUp/SignUpModal";
-
+import { useRouter } from "next/router";
+import {toast} from "react-toastify"
 
 const LoginModal = ({ show, setShow }: any) => {
+    const router = useRouter()
+
     const [loading, setLoading] = useState(false)
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -29,23 +32,30 @@ const LoginModal = ({ show, setShow }: any) => {
                 setEmail("")
                 setPassword("")
                 setLoading(false)
-                alert("Your Account Has been Login Successfully");
-               
+                toast.success('Account has been Successfully Logged In', {
+                    position: toast.POSITION.TOP_CENTER,
+                    autoClose: 3000, // Duration in milliseconds
+                    hideProgressBar: true,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    
+                  });
+                  router.reload()
+     
             }
         }).catch((error) => {
             alert(error?.response?.data?.message)
-           setPassword("")
+            setPassword("")
             setTimeout(() => setLoading(false), 1400)
         })
     }
     // Handle hide
     const handleHide = () => {
-        if (localStorage.getItem("role") === "user") {
-            setShow(false);
-        }
-        else {
-            setShow(true)
-        }
+        setShow(false);
+        setEmail("")
+        setPassword("")
     }
     return (
         <>
