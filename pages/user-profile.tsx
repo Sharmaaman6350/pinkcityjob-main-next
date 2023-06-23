@@ -2,11 +2,9 @@ import PageHead from "@/PageHead";
 import axios from "@/api/axios";
 import LoginModal from "@/components/Login/LoginModal";
 import SignUpModal from "@/components/SignUp/SignUpModal";
-import UserApplyModal from "@/components/UserApplyModal";
 import { faCircleUser, faRightToBracket, faStar, faUserTie } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import moment from "moment";
-import { GetServerSideProps } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -14,6 +12,41 @@ import { useEffect, useState } from "react";
 import { Button, Dropdown } from "react-bootstrap";
 import Slider from "react-slick";
 import { toast } from "react-toastify";
+
+
+type userDataType = {
+    _id: number,
+    name: string,
+    number: number | string,
+    city: string,
+    email: string,
+
+    jobtype: {
+        _id: number,
+        title: string
+    },
+    position: {
+        _id: number,
+        position: string,
+        skill: Array<{
+            value: string
+        }>
+    },
+    experience: {
+        _id: number,
+        experience: string
+    },
+    qualification: {
+        _id: number,
+        qualification: string
+    },
+    about: string,
+    address: string,
+    state: string,
+    country: string,
+    file: File | null; // Update the file property type
+
+}
 
 type DataType = {
     _id: number,
@@ -24,80 +57,48 @@ type DataType = {
     rating: number,
     createdAt: number,
 }
+type fileData = {
+    originalname: string,
+    location: string
 
+};
 
-type jobDataType = {
-    _id: string,
-    title: string,
-    company: {
-        name: string,
-        about: string,
-    },
-    salary: {
-        salary: string
-    },
-    jobtype: {
-        title: string
-    },
-    description: string,
-    address: string,
-    responsibility: string,
-    position: {
-        skill: Array<{
-            value: string,
-            label: string
-        }>
-    },
-    applied: Array<{
-        userid: string
-    }>
-
-}
-
-
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-    const itemId = context.params?.jobpage;
-
-    let data;
-    let error;
-
-    await axios.get(`/api/job/${itemId}`).then((response) => {
-        if (response) {
-            data = response?.data?.job
-        }
-    }).catch((error) => {
-        error = true
-    })
-    if (!data) {
-        return {
-            props: {
-                hasError: true
-            }
-        }
-    };
-
-    return {
-        props: {
-            data
-        }
-    }
-}
-
-
-
-export default function JobPage(props: { data: jobDataType, hasError: Boolean }) {
+export default function UserProfile() {
     const router = useRouter();
-
-    const [allreview, setAllreviews] = useState<DataType[]>([])
+    const [userData, setuserData] = useState<userDataType>()
+    const [loading, setLoading] = useState(false)
     const [showLoginModal, setShowLoginModal] = useState(false)
     const [showSignupModal, setShowSignupModal] = useState(false)
     const [showUserApplyModal, setShowUserApplyModal] = useState(false)
-    const [applied, setapplied] = useState<boolean>(false)
     const [jobId, setJobId] = useState("")
-
-    const [userid, setUserId] = useState<string | null>("")
-    const [userName, setUserName] = useState<string | null>("")
+    const [userId, setUserId] = useState("")
+    const [userName, setUserName] = useState<string | null>("");
+    const [allreview, setAllreviews] = useState<DataType[]>([])
+    const [filedata, setFiledata] = useState<fileData>()
+    //---------- useEffect for getting user details  -------////
+    useEffect(() => {
+        const id = localStorage?.getItem("user_id")
+        const getUserData = async () => {
+            await axios.get(`/api/user/${id}`).then((response) => {
+                if (response) {
+                    setuserData(response?.data?.user)
+                    if (response?.data?.user?.file.length === 1) {
+                        setFiledata({ originalname: response?.data?.user?.file[0].originalname || response?.data?.user?.file[0].key, location: response?.data?.user?.file[0].location })
+                    }
+                    setLoading(false)
+                }
+            }).catch((error) => {
+                toast.error(error?.response?.data?.message)
+                setTimeout(() => setLoading(false), 1400)
+            })
+        }
+        if (id) {
+            getUserData()
+        }
+        else {
+            alert("Please Login Your Account First")
+        }
+    }, []);
 
 
     useEffect(() => {
@@ -110,31 +111,20 @@ export default function JobPage(props: { data: jobDataType, hasError: Boolean })
                 })
                 .catch((error) => {
                     console.log(error?.response?.data?.message);
+                    setAllreviews([])
                 })
         }
         getAllReviews()
     }, []);
 
+
     useEffect(() => {
-        if (localStorage.getItem("role") === "user") {
-            setUserName(localStorage?.getItem("name"))
-            setUserId(localStorage?.getItem("user_id"))
+        if (localStorage.getItem("role") !== "user") {
+            setShowLoginModal(true)
         } else {
-            setUserName("")
-            setUserId("")
+            setUserName(localStorage?.getItem("name"))
         }
-    }, [])
-    useEffect(() => {
-        const getApplied = () => {
-            const applied = props?.data?.applied?.map((item: { userid: string }) => item?.userid === userid)[0]
-            if (applied) {
-                setapplied(true)
-            } else {
-                setapplied(false)
-            }
-        }
-        getApplied();
-    }, [userid,props?.data?.applied])
+    }, []);
     const handleLogout = () => {
         localStorage.clear()
         setUserName("")
@@ -150,34 +140,20 @@ export default function JobPage(props: { data: jobDataType, hasError: Boolean })
         router.push("/jobs")
     }
 
-    if (props.hasError) {
-        return (
-            <div className="h-screen flex items-center justify-center flex-col gap-4">
-                <p className="text-2xl text-gray-500 font-medium">Invalid Request! The page you are looking, not found.</p>
-                <button className="px-5 py-2 bg-red-600 text-white rounded-md" onClick={() => router.back()}>Tap to go back</button>
-            </div>
-        )
-    }
-
-    if (router.isFallback) {
-        return <h1>Loading...</h1>
-    }
-
+    console.log(userData)
     return (
         <>
-            <PageHead title={`${props?.data?.title} - Pink City Jobs`} description="Job Page - Pink City Jobs" />
+            <PageHead title="User Profile - PinkCity Jobs" description="" />
 
             <section className="text-center heading-banner border-bottom">
                 <div className="container pb-2">
-                    <h1 className="page-title d-inline">Pinkcity Jobs </h1>
+                    <h1 className="page-title d-inline">User Profile</h1>
                     <Dropdown className="float-right text-white">
                         {userName !== "" ? "Welcome , " + userName : ""}
                         <Dropdown.Toggle variant="dark" id="dropdown-basic" className="rounded px-4 ms-2">
                             <FontAwesomeIcon icon={faUserTie} width={20} />
                         </Dropdown.Toggle>
-
                         <Dropdown.Menu>
-                            <Dropdown.Item className="fw-bold" hidden={userName !== "" ? false : true}><Link href="/user-profile" className="text-black bg-none"><FontAwesomeIcon icon={faCircleUser} width={16} className="mb-1 me-2 text-primary" />Your Profile</Link></Dropdown.Item>
                             <Dropdown.Item className="fw-bold" hidden={userName !== "" ? false : true}><Link href="/update-profile" className="text-black bg-none"><FontAwesomeIcon icon={faCircleUser} width={16} className="mb-1 me-2 text-primary" />Update Profile</Link></Dropdown.Item>
                             <Dropdown.Item className="fw-bold" hidden={userName !== "" ? false : true}><Link href="/applied-job" className="bg-none text-black"><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-primary" />Applied Jobs</Link></Dropdown.Item>
                             <Dropdown.Item onClick={() => setShowLoginModal(true)} className="fw-bold" hidden={userName !== "" ? true : false}><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-primary" />Log In</Dropdown.Item>
@@ -193,8 +169,8 @@ export default function JobPage(props: { data: jobDataType, hasError: Boolean })
                     <nav aria-label="breadcrumb">
                         <ol className="breadcrumb mt-3">
                             <li className="breadcrumb-item px-3"><Link href="/">Home</Link></li>
-                            <li className="breadcrumb-item px-3 " aria-current="page">Jobs</li>
-                            <li className="breadcrumb-item px-3 active text-capitalize" aria-current="page">{props?.data?.title}</li>
+                            <li className="breadcrumb-item px-3 active text-capitalize" aria-current="page">Profile</li>
+                            <li className="breadcrumb-item px-3 active text-capitalize" aria-current="page">{userName}</li>
                         </ol>
                     </nav>
                 </div>
@@ -206,23 +182,28 @@ export default function JobPage(props: { data: jobDataType, hasError: Boolean })
                         <div className="col-lg-8 order-2 order-lg-1">
                             <div className="page-content border p-3">
                                 <div className="post-thumbnail job-details mb-2 mt-2">
-                                    <h1>{props?.data?.title}</h1>
-                                    <p className="fw-bold text-muted"><strong className="text-red me-2"><u>Company Name:-</u></strong>{props?.data?.company?.name}</p>
-                                    <div className="mb-2 d-flex justify-content-between">
-                                        <p className="fw-bold  text-muted"><strong className="text-red me-2 "><u>Salary:-</u></strong>₹{props?.data?.salary?.salary}</p>
-                                        <p className="fw-bold text-muted"><strong className="text-red me-2 "><u>Job Type:-</u></strong>{props?.data?.jobtype?.title}</p>
-                                    </div>
-                                    <p className="fw-bold text-muted"><strong className="text-red me-2"><u>Job Location:-</u></strong> {props?.data?.address}</p>
-                                    <p ><strong className="text-red me-2 "><u>Full Job Description:-</u></strong> {props?.data?.description}</p>
-                                    <p ><strong className="text-red me-2 "><u>About Company:-</u></strong>  {props?.data?.company?.about}</p>
-                                    <strong className="text-red me-2 "><u>Skills Required:-</u></strong> {props?.data?.position?.skill?.map((item: any, i) => (<ul key={i}><li>{item?.value}</li></ul>))}
-                                    <p ><strong className="text-red me-2 "><u>Roles And Responsibilities:-</u></strong> {props?.data?.responsibility}</p>
-                                    {
-                                        applied === true ? <center><Button className="button hover-white mt-md-3 my-3" disabled><span>Applied </span>
-                                        </Button></center> : <center><Button className="button bg-black hover-white mt-md-3 mt-2" onClick={() => { setShowUserApplyModal(true), setJobId(props?.data?._id) }}><span>Apply Now </span>
-                                        </Button></center>
-                                    }
+                                    <h1 className="text-center ">Welcome to Your Profile Page {userName}</h1>
 
+
+                                    <h5 className="text-center mt-5 fw-bold text-red ">Your Basic Details</h5>
+
+
+                                    <p className="fw-bold text-muted"><strong className="text-red me-2"><u>User Name:-</u></strong>{userData?.name}</p>
+                                    <p className="fw-bold text-muted"><strong className="text-red me-2"><u>User Email:-</u></strong>{userData?.email}</p>
+                                    <p className="fw-bold text-muted"><strong className="text-red me-2"><u>User Number:-</u></strong>{userData?.number}</p>
+                                    <p className="fw-bold text-muted"><strong className="text-red me-2"><u>User Local Address:-</u></strong>{userData?.address}</p>
+                                    <p className="fw-bold text-muted"><strong className="text-red me-2"><u>User Location:-</u></strong>{userData?.city + " , " + userData?.state + " , " + userData?.country}</p>
+                                    <p className="fw-bold text-muted"><strong className="text-red me-2"><u>Uploaded Resume:-</u></strong><Link href={`${filedata?.location}`}>{filedata?.originalname}</Link></p>
+                                    <p className="fw-bold text-muted"><strong className="text-red me-2"><u>Highest Qualification:-</u></strong>{userData?.qualification?.qualification}</p>
+                                    <p className="fw-bold text-muted"><strong className="text-red me-2"><u>Experience:-</u></strong>{userData?.experience?.experience}</p>
+                                    <p className="fw-bold text-muted"><strong className="text-red me-2"><u>Preferred Position:-</u></strong>{userData?.position?.position}</p>
+                                    <p className="fw-bold text-muted"><strong className="text-red me-2"><u>Preferred Job Type:-</u></strong>{userData?.jobtype?.title}</p>
+                                    <strong className="text-red me-2 "><u>Your Skills:-</u></strong> {userData?.position?.skill?.map((item, i) => (<ul key={i}><li>{item?.value}</li></ul>))}
+                                    <p className="fw-bold text-muted"><strong className="text-red me-2"><u>About YourSelf:-</u></strong>{userData?.about}</p>
+                                  
+
+                                    <center><Link href="/update-profile" hidden={userName !== "" ? false : true} className="button bg-black hover-white mt-md-3 mt-2"><span>Update Your Profile </span>
+                                    </Link></center> 
                                 </div>
                             </div>
                         </div>
@@ -300,8 +281,8 @@ export default function JobPage(props: { data: jobDataType, hasError: Boolean })
                                 </Slider>
 
 
-                                <div className="text-center mt-5"><a className="button hover-white w-180"
-                                    href="/reviews" target="_blank"><span>View All Reviews </span></a></div>
+                                <div className="text-center mt-5"><Link className="button hover-white w-180"
+                                    href="/reviews" ><span>View All Reviews </span></Link></div>
                             </div>
                         </div>
 
@@ -310,7 +291,8 @@ export default function JobPage(props: { data: jobDataType, hasError: Boolean })
             </section>
             <LoginModal show={showLoginModal} setShow={setShowLoginModal} />
             <SignUpModal show={showSignupModal} setShow={setShowSignupModal} />
-            <UserApplyModal show={showUserApplyModal} setShow={setShowUserApplyModal} id={jobId} setId={setJobId} />
+
         </>
     )
 }
+

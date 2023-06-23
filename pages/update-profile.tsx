@@ -4,11 +4,12 @@ import LoginModal from "@/components/Login/LoginModal";
 import SignUpModal from "@/components/SignUp/SignUpModal";
 import { faCircleUser, faRightToBracket, faUserTie } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { Button, Dropdown, Form, FormControlProps } from "react-bootstrap";
 const worldMapData = require('city-state-country');
-import {toast} from "react-toastify"
+import { toast } from "react-toastify"
 
 type userDataType = {
     _id: number,
@@ -37,34 +38,21 @@ type userDataType = {
 
 }
 
-// type formDataType = {
-//     id: number | undefined;
-//     name: string | undefined;
-//     email: string | undefined;
-//     number: string | number | undefined;
-//     address: string | undefined;
-//     country: string | undefined;
-//     state: string | undefined;
-//     city: string | undefined;
-//     qualification: string | undefined;
-//     experience: string | undefined;
-//     jobtype: string | undefined;
-//     position: string | undefined;
-//     file: File | undefined | null;
-//     about: string | undefined;
+type fileData = {
+    originalname: string,
+    location: string
 
-// };
+};
 type TypeData = {
     title: string,
     experience: string,
     _id: number
     position: string,
     qualification: string,
-}
-
-type locationDataType = {
     name: string
 }
+
+
 
 
 
@@ -79,10 +67,10 @@ export default function UpdateProfile() {
     const [experience, setExperience] = useState<TypeData[]>([])
     const [position, setPosition] = useState<TypeData[]>([])
     const [qualification, setQualification] = useState<TypeData[]>([])
-    const [countryData, setCountryData] = useState<locationDataType[]>(worldMapData.getAllCountries());
-    const [stateData, setstateData] = useState<locationDataType[]>([]);
-    const [cityData, setcityData] = useState<locationDataType[]>([]);
-    const [filename, setFilename] = useState("")
+    const [countryData, setCountryData] = useState<TypeData[]>(worldMapData.getAllCountries());
+    const [stateData, setstateData] = useState<TypeData[]>([]);
+    const [cityData, setcityData] = useState<TypeData[]>([]);
+    const [filedata, setFiledata] = useState<fileData>()
     //---------- useEffect for getting user details  -------////
     useEffect(() => {
         const id = localStorage?.getItem("user_id")
@@ -91,7 +79,7 @@ export default function UpdateProfile() {
                 if (response) {
                     setEditabledata(response?.data?.user)
                     if (response?.data?.user?.file.length === 1) {
-                        setFilename(response?.data?.user?.file[0].originalname || response?.data?.user?.file[0].key)
+                        setFiledata({ originalname: response?.data?.user?.file[0].originalname || response?.data?.user?.file[0].key, location: response?.data?.user?.file[0].location })
                     }
                     setLoading(false)
                 } else {
@@ -175,14 +163,14 @@ export default function UpdateProfile() {
     }, [])
 
     useEffect(() => {
-        if (localStorage.getItem("role") !== "user") {
-            setShowLoginModal(true)
-        } else {
+        if (localStorage.getItem("role") === "user") {
             setUserName(localStorage?.getItem("name"))
+        } else {
+            setUserName("")
         }
     }, [])
 
-    console.log(editabledata)
+
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         setLoading(true);
         event.preventDefault();
@@ -219,9 +207,9 @@ export default function UpdateProfile() {
                         pauseOnHover: true,
                         draggable: true,
                         progress: undefined,
-                        
-                      });
-                      router.push("/user-profile")
+
+                    });
+                    router.push("/user-profile")
                 }
             })
             .catch((error) => {
@@ -241,9 +229,9 @@ export default function UpdateProfile() {
             pauseOnHover: true,
             draggable: true,
             progress: undefined,
-            
-          });
-          router.push("/jobs")
+
+        });
+        router.push("/jobs")
     }
 
     return (
@@ -253,13 +241,13 @@ export default function UpdateProfile() {
                 <div className="container pb-2">
                     <h1 className="page-title d-inline">Update Profile</h1>
                     <Dropdown className="float-right text-white">
-                        Welcome , {userName}
+                        {userName !== "" ? "Welcome , " + userName : ""}
                         <Dropdown.Toggle variant="dark" id="dropdown-basic" className="rounded px-4 ms-2">
                             <FontAwesomeIcon icon={faUserTie} width={20} />
                         </Dropdown.Toggle>
 
                         <Dropdown.Menu>
-                            <Dropdown.Item className="fw-bold"><FontAwesomeIcon icon={faCircleUser} width={16} className="mb-1 me-2 text-primary" />Update Profile</Dropdown.Item>
+                            <Dropdown.Item className="fw-bold" hidden={userName !== "" ? false : true}><Link href="/user-profile" className="text-black bg-none"><FontAwesomeIcon icon={faCircleUser} width={16} className="mb-1 me-2 text-primary" />Your Profile</Link></Dropdown.Item>
                             <Dropdown.Item onClick={() => setShowLoginModal(true)} className="fw-bold" hidden={userName !== "" ? true : false}><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-primary" />Log In</Dropdown.Item>
                             <Dropdown.Item onClick={() => setShowSignupModal(true)} className="fw-bold" hidden={userName !== "" ? true : false}><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-primary" />Sign Up</Dropdown.Item>
                             <Dropdown.Item onClick={handleLogout} className="fw-bold" hidden={userName !== "" ? false : true}><FontAwesomeIcon icon={faRightToBracket} width={16} className="mb-1 me-2 text-danger" />Log Out</Dropdown.Item>
@@ -523,7 +511,8 @@ export default function UpdateProfile() {
                                                 return prevData;
                                             });
                                         }} />
-                                        <label className="labelStyling text-red">Uploaded File : {filename}<span className="text-danger"></span></label>
+                                        <label className="labelStyling text-red">Uploaded File : 
+                                        {filedata?.location && ( <Link href={filedata.location} >{filedata?.originalname} </Link>)}<span className="text-danger"></span></label>
                                     </div>
                                 </div>
 

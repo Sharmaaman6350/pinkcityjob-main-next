@@ -6,9 +6,15 @@ import { useState } from "react";
 import axios from "@/api/axios";
 import SignUpModal from "../SignUp/SignUpModal";
 import { useRouter } from "next/router";
-import {toast} from "react-toastify"
+import { toast } from "react-toastify"
+type dataType = {
+    show: boolean;
+    setShow: React.Dispatch<React.SetStateAction<boolean>>;
+    jobid?: string | "";
+    setJobId?: React.Dispatch<React.SetStateAction<string | "">>;
+};
 
-const LoginModal = ({ show, setShow }: any) => {
+const LoginModal = ({ show, setShow, jobid, setJobId }: dataType) => {
     const router = useRouter()
 
     const [loading, setLoading] = useState(false)
@@ -40,10 +46,15 @@ const LoginModal = ({ show, setShow }: any) => {
                     pauseOnHover: true,
                     draggable: true,
                     progress: undefined,
-                    
-                  });
-                  router.reload()
-     
+
+                });
+                if (jobid) {
+                    router.push(`/jobs/${jobid}`)
+                }
+                else {
+                    router.reload()
+                }
+
             }
         }).catch((error) => {
             alert(error?.response?.data?.message)
@@ -56,6 +67,9 @@ const LoginModal = ({ show, setShow }: any) => {
         setShow(false);
         setEmail("")
         setPassword("")
+        if (setJobId) {
+            setJobId("")
+          }
     }
     return (
         <>

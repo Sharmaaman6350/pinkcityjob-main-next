@@ -59,10 +59,10 @@ const Header = () => {
                                                     <p className="title h3">Services</p>
                                                     <ul className="link-list list-unstyled text-capitalize">
                                                         {
-                                                            allpage?.map((item) => (
+                                                            allpage?.map((item,i) => (
                                                                 <>
                                                                     {
-                                                                        item?.pagetype === "services" ? <li><Link href={`/${item.slug}`}>{item?.headertitle}</Link></li> : ""
+                                                                        item?.pagetype === "services" ? <li key={i}><Link href={`/${item.slug}`}>{item?.headertitle}</Link></li> : ""
                                                                     }
                                                                 </>
                                                             ))
@@ -73,10 +73,10 @@ const Header = () => {
                                                     <p className="title h3">Jobs for Different Industries</p>
                                                     <div className="row">
                                                         {
-                                                            allpage?.map((item) => (
+                                                            allpage?.map((item,i) => (
                                                                 <>
                                                                     {
-                                                                        item?.pagetype === "industry" ? <div className="col-md-12 col-lg-6">
+                                                                        item?.pagetype === "industry" ? <div className="col-md-12 col-lg-6" key={i}>
                                                                             <ul className="link-list list-unstyled text-capitalize">
                                                                                 <li><Link href={`/${item.slug}`}>{item?.headertitle}</Link></li>
                                                                             </ul>
@@ -95,10 +95,10 @@ const Header = () => {
                                                     <p className="title h3">HR Internship & Training</p>
                                                     <ul className="link-list list-unstyled text-capitalize">
                                                     {
-                                                            allpage?.map((item) => (
+                                                            allpage?.map((item,i) => (
                                                                 <>
                                                                     {
-                                                                        item?.pagetype === "internship" ? <li><Link href={`/${item.slug}`}>{item?.headertitle}</Link></li> : ""
+                                                                        item?.pagetype === "internship" ? <li key={i} ><Link href={`/${item.slug}`}>{item?.headertitle}</Link></li> : ""
                                                                     }
                                                                 </>
                                                             ))

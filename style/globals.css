@@ -2687,10 +2687,20 @@ aside .other-services li .faHandPoint {
 
 /* review page */
 #reviews-page .review-box {
-  min-height: 200px;
+  height: 290px;
   overflow-y: auto;
 }
+#reviews-page .review-box::-webkit-scrollbar {
+  width: 5px;
+}
 
+#reviews-page .review-box::-webkit-scrollbar-thumb {
+  background-color: pink;
+}
+
+#reviews-page .review-box::-webkit-scrollbar-track {
+  background-color: transparent;
+}
 .reviews-template .reviews_heading {
   font-size: 18px;
   font-weight: 600;

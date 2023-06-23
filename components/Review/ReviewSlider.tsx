@@ -19,7 +19,7 @@ const ReviewSlider = () => {
     const [alldata, setAlldata] = useState<DataType[]>([])
     useEffect(() => {
         const getAllReviews = async () => {
-            await axios.get(`/api/review/search/?page=1&selectrow=4&title=`)
+            await axios.get(`/api/review/search/?page=1&selectrow=3&title=`)
                 .then((res) => {
                     if (res) {
                         setAlldata(res?.data?.review)
@@ -44,9 +44,9 @@ const ReviewSlider = () => {
 
                     return (
 
-                        <div className="item" key={i}>
+                        <div className="item " key={i} >
                             <div className="testi-box">
-                                <div className="testimonial border mb-3 ">
+                                <div className="testimonial border mb-3 pb-2">
                                     <div className=" pl-md-0">
                                         <div className="test-text p-md-3 p-2">
                                             <div className="displayFlowRoot">
@@ -55,9 +55,9 @@ const ReviewSlider = () => {
                                                     {stars}
                                                 </span>
                                             </div>
-                                            <div dangerouslySetInnerHTML={{ __html: item?.description.substring(0,250) + "....." }} />
+                                            <div dangerouslySetInnerHTML={{ __html: item?.description }} />
                                             <div>
-                                                <span className="float-md-left text-capitalize">{item?.name}</span>
+                                                <span className="float-md-left  text-capitalize">{item?.name}</span>
                                                 , <span>{item?.location}</span>
                                                 <span className="float-md-right">{moment(item?.createdAt).format("DD-MM-YYYY")}</span>
                                             </div>
