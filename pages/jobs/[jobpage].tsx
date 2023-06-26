@@ -50,7 +50,9 @@ type jobDataType = {
     },
     applied: Array<{
         userid: string
-    }>
+    }>,
+    slug:string,
+    addressone:string,
 
 }
 
@@ -58,17 +60,34 @@ type jobDataType = {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const itemId = context.params?.jobpage;
-
+  
     let data;
     let error;
-
-    await axios.get(`/api/job/${itemId}`).then((response) => {
-        if (response) {
-            data = response?.data?.job
-        }
-    }).catch((error) => {
-        error = true
-    })
+    const pattern1 = /^([a-zA-Z0-9]+-){1,30}[a-zA-Z0-9]*$/;
+    const pattern2 = /^[a-zA-Z0-9]{1,40}$/;
+    if (pattern1.test(itemId as string)) {
+        await axios
+          .get(`/api/job/slug/${itemId}`)
+          .then((response) => {
+            if (response) {
+              data = response?.data;
+            }
+          })
+          .catch(() => {
+            error = true;
+          });
+      } else if (pattern2.test(itemId as string)) {
+        await axios
+          .get(`/api/job/${itemId}`)
+          .then((response) => {
+            if (response) {
+              data = response?.data?.job;
+            }
+          })
+          .catch(() => {
+            error = true;
+          });
+      }
     if (!data) {
         return {
             props: {
@@ -134,7 +153,7 @@ export default function JobPage(props: { data: jobDataType, hasError: Boolean })
             }
         }
         getApplied();
-    }, [userid,props?.data?.applied])
+    }, [userid, props?.data?.applied])
     const handleLogout = () => {
         localStorage.clear()
         setUserName("")
@@ -165,7 +184,7 @@ export default function JobPage(props: { data: jobDataType, hasError: Boolean })
 
     return (
         <>
-            <PageHead title={`${props?.data?.title} - Pink City Jobs`} description="Job Page - Pink City Jobs" />
+            <PageHead title={`${props?.data?.slug ? props?.data?.slug : props?.data?.title} - Pink City Jobs`} description="Job Page - Pink City Jobs" />
 
             <section className="text-center heading-banner border-bottom">
                 <div className="container pb-2">
@@ -212,11 +231,11 @@ export default function JobPage(props: { data: jobDataType, hasError: Boolean })
                                         <p className="fw-bold  text-muted"><strong className="text-red me-2 "><u>Salary:-</u></strong>₹{props?.data?.salary?.salary}</p>
                                         <p className="fw-bold text-muted"><strong className="text-red me-2 "><u>Job Type:-</u></strong>{props?.data?.jobtype?.title}</p>
                                     </div>
-                                    <p className="fw-bold text-muted"><strong className="text-red me-2"><u>Job Location:-</u></strong> {props?.data?.address}</p>
-                                    <p ><strong className="text-red me-2 "><u>Full Job Description:-</u></strong> {props?.data?.description}</p>
+                                    <p className="fw-bold text-muted"><strong className="text-red me-2"><u>Job Location:-</u></strong> {props?.data?.address + props?.data?.addressone}</p>
+                                    <div className="d-flex "><strong className="text-red me-2 "><u>Full Job Description:-</u></strong> <div dangerouslySetInnerHTML={{ __html: props?.data?.description }} /></div>
                                     <p ><strong className="text-red me-2 "><u>About Company:-</u></strong>  {props?.data?.company?.about}</p>
                                     <strong className="text-red me-2 "><u>Skills Required:-</u></strong> {props?.data?.position?.skill?.map((item: any, i) => (<ul key={i}><li>{item?.value}</li></ul>))}
-                                    <p ><strong className="text-red me-2 "><u>Roles And Responsibilities:-</u></strong> {props?.data?.responsibility}</p>
+                                    <div className="d-flex " ><strong className="text-red me-2 "><u>Roles And Responsibilities:-</u></strong><div dangerouslySetInnerHTML={{ __html: props?.data?.responsibility }} /></div> 
                                     {
                                         applied === true ? <center><Button className="button hover-white mt-md-3 my-3" disabled><span>Applied </span>
                                         </Button></center> : <center><Button className="button bg-black hover-white mt-md-3 mt-2" onClick={() => { setShowUserApplyModal(true), setJobId(props?.data?._id) }}><span>Apply Now </span>

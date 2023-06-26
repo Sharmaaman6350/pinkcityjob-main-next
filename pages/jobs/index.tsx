@@ -143,6 +143,7 @@ export default function Jobs() {
 
 
     const handleApplyJob = (id: string) => {
+      
         if (userid) {
             router.push(`/jobs/${id}`)
         }
@@ -223,6 +224,7 @@ export default function Jobs() {
                                 <Slider className="homebanner slider mb-5 pb-3" {...settings} slidesToShow={2} slidesToScroll={2}>
                                     {
                                         alldata?.map((item, i) => {
+                                            console.log(item)
                                             const applied = item?.applied?.map((item: { userid: string }) => item?.userid === userid)[0]
                                             return (
                                                 <div className="item px-3  " key={i}>
@@ -231,7 +233,7 @@ export default function Jobs() {
                                                             <JobBox data={item} applied={applied} />
                                                             {
                                                                 applied === true ? <center><Button className="button hover-white mt-md-3 my-3" disabled><span>Applied </span>
-                                                                </Button></center> : <center><Button className="button hover-white mt-md-3 my-3" onClick={() => handleApplyJob(item?._id)}><span>Apply Now </span>
+                                                                </Button></center> : <center><Button className="button hover-white mt-md-3 my-3" onClick={() => handleApplyJob(item?.slug ? item?.slug : item?._id )}><span>Apply Now </span>
                                                                 </Button></center>
                                                             }
 

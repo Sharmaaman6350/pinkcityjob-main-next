@@ -13,9 +13,11 @@ type dataType = {
      },
      description:string,
      city:string,
-     state:string
+     state:string,
+     slug:string
    }
-   applied:boolean
+   applied:boolean,
+   
 }
 
 
@@ -29,10 +31,10 @@ const JobBox = (props:dataType)   => {
                         
                         <h5 className="card-title text-center mb-4 text-capitalize">{
                             props.applied === true ? <Badge className="float-left">Applied</Badge> : ""
-                        }<Link href={`/jobs/${props?.data?._id}`} className="text-black text-capitalize">{props?.data?.title}</Link></h5>
+                        }<Link href={`/jobs/${props?.data?.slug ? props?.data?.slug : props?.data?._id}`} className="text-black text-capitalize">{props?.data?.title}</Link></h5>
                         <h6 className="card-subtitle mb-3 text-dark"><u>Posted By-</u><span className="text-muted ms-2 text-capitalize">{props?.data?.company?.name}</span></h6>
                         <h6 className="card-subtitle mb-3 text-dark"><u>Salary-</u><span className="text-muted ms-2">{props?.data?.salary?.salary} </span></h6>
-                        <div className="card-text text-justify" dangerouslySetInnerHTML={{__html:props?.data?.description?.substring(0,300) + "....."}}/>
+                        <div className="card-text text-justify" dangerouslySetInnerHTML={{__html:props?.data?.description?.substring(0,300) + (props?.data?.description.length > 300 ? "....." : "")}}/>
 
                         <h6 className="card-subtitle my-3 text-dark"><u>Location-</u><span className="text-muted ms-2">{props?.data?.city + " , " + props?.data?.state}</span></h6>
                         <h6 className="card-subtitle mb-3 text-dark"><u>Job Type-</u><span className="text-muted ms-2">Full Time</span></h6>
